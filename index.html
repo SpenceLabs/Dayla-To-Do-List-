@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dayla</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Rampart+One&family=Outfit:wght@400;600;700&family=Permanent+Marker&family=Rubik+Glitch&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Outfit', sans-serif; }
+    .fade-in { animation: fadeIn 1s ease-in-out forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .slide-up { animation: slideUp 0.8s ease-in-out; }
+    @keyframes slideUp { 0% { opacity: 0; transform: translateY(50px); } 100% { opacity: 1; transform: translateY(0); } }
+    .graffiti { font-family: 'Rubik Glitch', cursive; transform: perspective(500px) rotateX(5deg) rotateY(-5deg); text-shadow: 3px 3px 0 #000, 6px 6px 0 #ff4d4d; }
+    .neon-border { border: 1px solid #1A1A1A; box-shadow: 0 0 10px #ff4d4d, 0 0 20px #ff4d4d; }
+    .card-glow { box-shadow: 0 0 25px rgba(255, 77, 77, 0.6); transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .card-glow:hover { transform: scale(1.03); box-shadow: 0 0 35px rgba(255, 77, 77, 0.8); }
+    .graffiti-bg { background: linear-gradient(to right, #1A1A1A, #2B2B2B); background-image: url('https://www.transparenttextures.com/patterns/rocky-wall.png'), url('https://www.transparenttextures.com/patterns/splat.png'); }
+    .fancy-input { background-color: #1A1A1A; border: 1px solid #ff4d4d; transition: all 0.3s ease; }
+    .fancy-input:focus { background-color: #2B2B2B; box-shadow: 0 0 10px #ff4d4d; }
+    .hover-glow:hover { box-shadow: 0 0 15px #ff4d4d; }
+    .text-graffiti-outline { color: #ff4d4d; text-shadow: 2px 2px #000, -2px -2px #000, 2px -2px #000, -2px 2px #000; }
+    .light-mode { background-color: #f4f4f4 !important; color: #222 !important; }
+    .light-mode .graffiti-bg, .light-mode .bg-\[\#2B2B2B\] { background: #ffffff !important; background-image: none !important; }
+    .light-mode .fancy-input { background-color: #ffffff !important; border: 2px solid #999; color: #222; }
+    .light-mode .fancy-input:focus { background-color: #fefefe !important; box-shadow: 0 0 5px #999; }
+    .light-mode .graffiti { color: #444; text-shadow: 1px 1px #aaa, 2px 2px #eee; }
+  </style>
+</head>
+<body class="bg-[#1A1A1A] text-white graffiti-bg" id="body">
+  <div id="splash" class="fixed inset-0 bg-[#1A1A1A] flex items-center justify-center z-50">
+    <h1 class="text-8xl graffiti text-graffiti-outline tracking-widest animate-pulse">Dayla</h1>
+  </div>
+
+  <div id="authModal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center">
+    <div class="bg-[#2B2B2B] p-8 rounded-xl w-full max-w-md neon-border space-y-4">
+      <h2 class="text-2xl graffiti text-graffiti-outline text-center">Welcome to Dayla</h2>
+      <input id="authEmail" type="email" placeholder="Email" class="w-full p-3 rounded-xl fancy-input">
+      <input id="authPassword" type="password" placeholder="Password" class="w-full p-3 rounded-xl fancy-input">
+      <button onclick="handleLogin()" class="w-full bg-red-500 text-white py-2 rounded-xl hover:bg-red-600 hover-glow">Login</button>
+      <p class="text-center text-sm text-gray-400">No account? <button onclick="toggleRegister()" class="text-red-400 hover:underline">Register</button></p>
+      <p class="text-center text-sm text-gray-400">Forgot password? <button onclick="resetPassword()" class="text-red-400 hover:underline">Reset</button></p>
+      <button onclick="closeModal()" class="absolute top-4 right-6 text-white text-xl">✕</button>
+      <button onclick="signInWithGoogle()" class="w-full bg-white text-black py-2 rounded-xl hover:bg-gray-100 hover-glow flex items-center justify-center gap-2 mt-2">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5" alt="Google logo">
+        Sign in with Google
+      </button>
+    </div>
+  </div>
+
+  <div id="main" class="hidden fade-in">
+    <header class="flex justify-between items-center px-6 py-4 bg-[#2B2B2B]/90 shadow-md sticky top-0 z-30 backdrop-blur">
+      <h1 class="text-4xl graffiti text-graffiti-outline">Dayla</h1>
+      <div class="flex items-center gap-4">
+        <button onclick="toggleLightMode()" class="text-xl text-white hover:text-red-400 transition">🌙</button>
+        <button id="loginBtn" onclick="openModal()" class="bg-red-500 text-white px-5 py-2 rounded-full hover:bg-red-600 transition hover-glow">Login</button>
+        <img id="userAvatar" src="https://via.placeholder.com/40" alt="User" class="w-10 h-10 rounded-full border-2 border-red-500 hover-glow hidden">
+        <button id="logoutBtn" onclick="logoutUser()" class="hidden text-red-400 hover:text-red-600 transition hover-glow">Logout</button>
+      </div>
+    </header>
+
+    <section class="p-6 max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10">
+      <form id="taskForm" class="bg-[#2B2B2B] p-10 rounded-3xl neon-border shadow-xl space-y-6 slide-up">
+        <input id="taskInput" type="text" placeholder="What's the vibe today?" class="w-full p-4 rounded-xl fancy-input" required>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <input id="dateInput" type="date" class="p-4 rounded-xl fancy-input" required>
+          <input id="tagInput" type="text" placeholder="Tag it (e.g. Mood, Hustle)" class="p-4 rounded-xl fancy-input">
+        </div>
+        <p id="guestMessage" class="text-red-400 text-center hidden">Login to add your vibes</p>
+        <button type="submit" class="w-full bg-red-500 text-white py-3 rounded-xl hover:bg-red-600 transition-all text-lg hover-glow">➕ Add To Flow</button>
+      </form>
+
+      <div class="text-center text-red-300 graffiti text-5xl flex items-center justify-center px-6">
+        Make Waves 🌊 Not Excuses
+      </div>
+    </section>
+
+    <section id="taskList" class="p-6 max-w-6xl mx-auto space-y-8"></section>
+  </div>
+
+  <footer class="bg-[#2B2B2B]/90 text-white py-6 mt-20 shadow-inner backdrop-blur">
+    <div class="max-w-6xl mx-auto text-center">
+      <div class="text-graffiti-outline graffiti text-2xl">Dayla</div>
+      <p class="text-sm text-white mt-2">
+        Curated by 
+        <a href="https://spencelabsinternational.web.app" target="_blank" class="text-red-400 hover:text-red-600 underline transition">
+          Spence Labs International
+        </a>
+      </p>
+    </div>
+  </footer>
+
+
+  <script type="module">
+    import {
+      openModal,
+      closeModal,
+      toggleRegister,
+      handleLogin,
+      resetPassword,
+      signInWithGoogle,
+      logoutUser,
+      checkAuthState
+    } from "./assets/js/firebasedb.js";
+
+    window.openModal = openModal;
+    window.closeModal = closeModal;
+    window.toggleRegister = toggleRegister;
+    window.handleLogin = handleLogin;
+    window.resetPassword = resetPassword;
+    window.signInWithGoogle = signInWithGoogle;
+    window.logoutUser = logoutUser;
+
+    checkAuthState();
+  </script>
+
+  <script>
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        document.getElementById('splash').style.display = 'none';
+        document.getElementById('main').classList.remove('hidden');
+      }, 2000);
+    });
+
+     function toggleLightMode() {
+      const body = document.getElementById('body');
+      body.classList.toggle('light-mode');
+    }
+  </script>
+</body>
+</html>
